@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: reservation
+      POSTGRES_PASSWORD: reservation
+      POSTGRES_DB: reservation
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U reservation -d reservation']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: .
+    command: ['node', 'dist/shared/persistence/postgres/migrate.js']
+    environment:
+      DATABASE_URL: postgres://reservation:reservation@postgres:5432/reservation
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      LOG_LEVEL: info
+      PERSISTENCE_DRIVER: postgres
+      DATABASE_URL: postgres://reservation:reservation@postgres:5432/reservation
+      API_KEYS: ${API_KEYS:-dev-admin-key-change-me:admin:ops,dev-client-key-change-me:client:web-shop}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-data:
