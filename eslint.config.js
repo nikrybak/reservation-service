@@ -2,7 +2,14 @@ const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 const prettier = require('eslint-config-prettier');
 
-const frameworkImports = ['@nestjs/*', 'kysely', 'pg', 'class-validator', 'class-transformer', 'nestjs-pino'];
+const frameworkImports = [
+  '@nestjs/*',
+  'kysely',
+  'pg',
+  'class-validator',
+  'class-transformer',
+  'nestjs-pino',
+];
 
 module.exports = tseslint.config(
   { ignores: ['dist/', 'coverage/', 'node_modules/', '*.config.js', 'eslint.config.js'] },
@@ -17,7 +24,10 @@ module.exports = tseslint.config(
     },
     rules: {
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports', disallowTypeAnnotations: false }],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
+      ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
@@ -33,7 +43,10 @@ module.exports = tseslint.config(
         {
           patterns: [
             { group: frameworkImports, message: 'The domain layer must stay framework-free.' },
-            { group: ['**/application/**', '**/infrastructure/**', '**/http/**'], message: 'The domain layer must not depend on outer layers.' },
+            {
+              group: ['**/application/**', '**/infrastructure/**', '**/http/**'],
+              message: 'The domain layer must not depend on outer layers.',
+            },
           ],
         },
       ],

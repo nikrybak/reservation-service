@@ -1,11 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 export type DomainEventName =
-  | 'SeatsHeld'
-  | 'HoldReleased'
-  | 'HoldExpired'
-  | 'BookingConfirmed'
-  | 'BookingCancelled';
+  'SeatsHeld' | 'HoldReleased' | 'HoldExpired' | 'BookingConfirmed' | 'BookingCancelled';
 
 export type DomainEventPayload = Readonly<Record<string, unknown>>;
 

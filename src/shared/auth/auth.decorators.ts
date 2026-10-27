@@ -13,10 +13,12 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 
-export const CurrentPrincipal = createParamDecorator((_data: unknown, context: ExecutionContext) => {
-  const principal = context.switchToHttp().getRequest<AuthenticatedRequest>().principal;
-  if (!principal) {
-    throw new Error('CurrentPrincipal used on a route without authentication');
-  }
-  return principal;
-});
+export const CurrentPrincipal = createParamDecorator(
+  (_data: unknown, context: ExecutionContext) => {
+    const principal = context.switchToHttp().getRequest<AuthenticatedRequest>().principal;
+    if (!principal) {
+      throw new Error('CurrentPrincipal used on a route without authentication');
+    }
+    return principal;
+  },
+);

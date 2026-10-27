@@ -67,14 +67,25 @@ describe('Reservation flow (e2e)', () => {
     const afterHold = await availability();
     expect(afterHold.cache).toBe('miss');
     expect(afterHold.body.totals).toEqual({ available: 16, held: 2, booked: 0 });
-    expect(afterHold.body.tiers.find((tier) => tier.code === 'VIP')).toMatchObject({ available: 7, total: 8 });
+    expect(afterHold.body.tiers.find((tier) => tier.code === 'VIP')).toMatchObject({
+      available: 7,
+      total: 8,
+    });
 
     const confirmed = await confirmHold(t, hold.id, 'order-1001').expect(201);
     const booking = confirmed.body as BookingBody;
     expect(confirmed.headers['idempotent-replayed']).toBe('false');
-    expect(booking).toMatchObject({ holdId: hold.id, status: 'confirmed', total: { amountMinor: 17_400 } });
+    expect(booking).toMatchObject({
+      holdId: hold.id,
+      status: 'confirmed',
+      total: { amountMinor: 17_400 },
+    });
 
-    const fetched = await t.http().get(`/bookings/${booking.id}`).set('x-api-key', CLIENT_KEY).expect(200);
+    const fetched = await t
+      .http()
+      .get(`/bookings/${booking.id}`)
+      .set('x-api-key', CLIENT_KEY)
+      .expect(200);
     expect(fetched.body).toEqual(booking);
 
     const afterBooking = await availability();
@@ -83,7 +94,10 @@ describe('Reservation flow (e2e)', () => {
 
     const report = await t.dispatchOutbox();
     expect(report).toEqual({ published: 2, failed: 0, dead: 0 });
-    expect(t.outbox.records().map((record) => record.name)).toEqual(['SeatsHeld', 'BookingConfirmed']);
+    expect(t.outbox.records().map((record) => record.name)).toEqual([
+      'SeatsHeld',
+      'BookingConfirmed',
+    ]);
   });
 
   it('replays an idempotent confirmation instead of booking twice', async () => {
@@ -106,7 +120,9 @@ describe('Reservation flow (e2e)', () => {
   it('lets only one of several concurrent holds on the same seat succeed', async () => {
     const contenders = [CLIENT_KEY, OTHER_CLIENT_KEY, CLIENT_KEY, OTHER_CLIENT_KEY, CLIENT_KEY];
 
-    const responses = await Promise.all(contenders.map((key) => placeHold(t, eventId, ['A-1-4'], key)));
+    const responses = await Promise.all(
+      contenders.map((key) => placeHold(t, eventId, ['A-1-4'], key)),
+    );
 
     const statuses = responses.map((response) => response.status).sort();
     expect(statuses).toEqual([201, 409, 409, 409, 409]);
@@ -117,7 +133,8 @@ describe('Reservation flow (e2e)', () => {
   });
 
   it('expires holds: confirmation fails after the deadline and the sweep returns seats to the pool', async () => {
-    const hold = (await placeHold(t, eventId, ['B-1-1', 'B-1-2'], CLIENT_KEY, 60).expect(201)).body as HoldBody;
+    const hold = (await placeHold(t, eventId, ['B-1-1', 'B-1-2'], CLIENT_KEY, 60).expect(201))
+      .body as HoldBody;
     t.clock.advanceSeconds(61);
 
     const late = await confirmHold(t, hold.id, 'order-3001').expect(410);
@@ -129,7 +146,11 @@ describe('Reservation flow (e2e)', () => {
     expect(seatStatus(after.body, 'B-1-1')).toBe('available');
     expect(after.body.totals.held).toBe(0);
     await placeHold(t, eventId, ['B-1-1'], OTHER_CLIENT_KEY).expect(201);
-    expect(t.outbox.records().map((record) => record.name)).toEqual(['SeatsHeld', 'HoldExpired', 'SeatsHeld']);
+    expect(t.outbox.records().map((record) => record.name)).toEqual([
+      'SeatsHeld',
+      'HoldExpired',
+      'SeatsHeld',
+    ]);
   });
 
   it('lets a new customer take over a lapsed hold before the sweep runs', async () => {
@@ -156,7 +177,12 @@ describe('Reservation flow (e2e)', () => {
     const hold = (await placeHold(t, eventId, ['A-1-3']).expect(201)).body as HoldBody;
     const booking = (await confirmHold(t, hold.id, 'order-4001').expect(201)).body as BookingBody;
 
-    await t.http().post(`/bookings/${booking.id}/cancel`).set('x-api-key', CLIENT_KEY).send({}).expect(403);
+    await t
+      .http()
+      .post(`/bookings/${booking.id}/cancel`)
+      .set('x-api-key', CLIENT_KEY)
+      .send({})
+      .expect(403);
     const cancelled = await t
       .http()
       .post(`/bookings/${booking.id}/cancel`)
@@ -165,7 +191,12 @@ describe('Reservation flow (e2e)', () => {
       .expect(200);
     expect(cancelled.body).toMatchObject({ status: 'cancelled' });
 
-    await t.http().post(`/bookings/${booking.id}/cancel`).set('x-api-key', ADMIN_KEY).send({}).expect(409);
+    await t
+      .http()
+      .post(`/bookings/${booking.id}/cancel`)
+      .set('x-api-key', ADMIN_KEY)
+      .send({})
+      .expect(409);
     expect(seatStatus((await availability()).body, 'A-1-3')).toBe('available');
     await t.http().get(`/bookings/${booking.id}`).set('x-api-key', OTHER_CLIENT_KEY).expect(404);
   });

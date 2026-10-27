@@ -21,19 +21,25 @@ const apiKeyEntry = z
       })
       .safeParse({ key, role, principalId });
     if (!parsed.success) {
-      ctx.addIssue({ code: 'custom', message: 'API_KEYS entries must look like key:role:principalId' });
+      ctx.addIssue({
+        code: 'custom',
+        message: 'API_KEYS entries must look like key:role:principalId',
+      });
       return z.NEVER;
     }
     return parsed.data;
   });
 
-const intFromEnv = (fallback: number, min = 0) => z.coerce.number().int().min(min).default(fallback);
+const intFromEnv = (fallback: number, min = 0) =>
+  z.coerce.number().int().min(min).default(fallback);
 
 const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: intFromEnv(3000, 1).pipe(z.number().max(MAX_PORT)),
-    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+    LOG_LEVEL: z
+      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+      .default('info'),
     PERSISTENCE_DRIVER: z.enum(['memory', 'postgres']).default('postgres'),
     DATABASE_URL: z.url().optional(),
     API_KEYS: z
@@ -69,8 +75,7 @@ export interface ApiKeyEntry {
 }
 
 export type PersistenceConfig =
-  | { readonly driver: 'memory' }
-  | { readonly driver: 'postgres'; readonly databaseUrl: string };
+  { readonly driver: 'memory' } | { readonly driver: 'postgres'; readonly databaseUrl: string };
 
 export interface AppConfig {
   readonly nodeEnv: 'development' | 'test' | 'production';

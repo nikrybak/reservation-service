@@ -105,7 +105,11 @@ describe('Booking', () => {
   }
 
   it('records BookingConfirmed on creation', () => {
-    expect(confirmBooking().pullEvents().map((event) => event.name)).toEqual(['BookingConfirmed']);
+    expect(
+      confirmBooking()
+        .pullEvents()
+        .map((event) => event.name),
+    ).toEqual(['BookingConfirmed']);
   });
 
   it('cancels once and records the reason', () => {

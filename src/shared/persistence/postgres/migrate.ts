@@ -6,7 +6,10 @@ import { KyselyDatabase } from './kysely-database';
 const MIGRATIONS_DIR = join(__dirname, '..', '..', '..', '..', 'migrations');
 
 /** Applies plain SQL migrations in lexical order, each in its own transaction. */
-export async function migrate(database: KyselyDatabase, log: (line: string) => void): Promise<void> {
+export async function migrate(
+  database: KyselyDatabase,
+  log: (line: string) => void,
+): Promise<void> {
   const db = database.root;
   await sql`CREATE TABLE IF NOT EXISTS schema_migrations (
     name text PRIMARY KEY,

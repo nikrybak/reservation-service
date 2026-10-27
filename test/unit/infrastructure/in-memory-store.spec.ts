@@ -25,7 +25,9 @@ describe('InMemoryStore', () => {
     const { table } = setup();
     table.insert('a', { id: 'a', value: 'one' });
     table.update('a', { id: 'a', value: 'two' }, 1);
-    expect(() => table.update('a', { id: 'a', value: 'three' }, 1)).toThrow(ConcurrencyConflictError);
+    expect(() => table.update('a', { id: 'a', value: 'three' }, 1)).toThrow(
+      ConcurrencyConflictError,
+    );
   });
 
   it('enforces unique keys', () => {

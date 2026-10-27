@@ -63,7 +63,14 @@ export function buildAvailabilitySnapshot(
       seats: Array.from({ length: row.seatCount }, (_, index) => {
         const seat = bySeatId.get(`${section.name}-${row.name}-${index + 1}`);
         return seat
-          ? [{ seatId: seat.id.toString(), number: seat.id.number, tierCode: seat.tierCode, status: seat.status }]
+          ? [
+              {
+                seatId: seat.id.toString(),
+                number: seat.id.number,
+                tierCode: seat.tierCode,
+                status: seat.status,
+              },
+            ]
           : [];
       }).flat(),
     })),

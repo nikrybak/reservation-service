@@ -39,7 +39,8 @@ export class BookingResponse {
       state.ticketedEventId,
       state.status,
       state.seats.map(
-        (seat) => new BookedSeatResponse(seat.seatId, seat.tierCode, MoneyResponse.from(seat.price)),
+        (seat) =>
+          new BookedSeatResponse(seat.seatId, seat.tierCode, MoneyResponse.from(seat.price)),
       ),
       MoneyResponse.from(state.total),
       state.createdAt.toISOString(),

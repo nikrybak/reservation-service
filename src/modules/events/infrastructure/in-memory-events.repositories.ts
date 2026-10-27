@@ -1,5 +1,8 @@
 import { Money } from '../../../shared/domain/money';
-import type { InMemoryStore, InMemoryTable } from '../../../shared/persistence/in-memory/in-memory-store';
+import type {
+  InMemoryStore,
+  InMemoryTable,
+} from '../../../shared/persistence/in-memory/in-memory-store';
 import type { SeatRepository, TicketedEventRepository } from '../application/ports';
 import { PricingTier } from '../domain/pricing-tier';
 import { Seat, type SeatStatus } from '../domain/seat';

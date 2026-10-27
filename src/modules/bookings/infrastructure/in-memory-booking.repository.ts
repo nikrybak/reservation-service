@@ -1,4 +1,7 @@
-import type { InMemoryStore, InMemoryTable } from '../../../shared/persistence/in-memory/in-memory-store';
+import type {
+  InMemoryStore,
+  InMemoryTable,
+} from '../../../shared/persistence/in-memory/in-memory-store';
 import type { BookingRepository } from '../application/ports';
 import type { Booking } from '../domain/booking';
 import { type BookingRecord, fromBookingRecord, toBookingRecord } from './booking-record.mapper';

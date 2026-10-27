@@ -137,7 +137,9 @@ export class InMemoryTable<TRow extends VersionedRow> {
   validate(write: StagedWrite, batch: ReadonlyMap<string, StagedWrite>): void {
     const committed = this.rows.get(write.id);
     const versionMatches =
-      write.expectedVersion === null ? committed === undefined : committed?.version === write.expectedVersion;
+      write.expectedVersion === null
+        ? committed === undefined
+        : committed?.version === write.expectedVersion;
     if (!versionMatches) {
       throw new ConcurrencyConflictError(this.name, write.id);
     }

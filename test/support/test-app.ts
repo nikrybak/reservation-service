@@ -72,7 +72,12 @@ export function placeHold(
     .send(ttlSeconds === undefined ? { seatIds } : { seatIds, ttlSeconds });
 }
 
-export function confirmHold(testApp: TestApp, holdId: string, idempotencyKey: string, apiKey = CLIENT_KEY) {
+export function confirmHold(
+  testApp: TestApp,
+  holdId: string,
+  idempotencyKey: string,
+  apiKey = CLIENT_KEY,
+) {
   return testApp
     .http()
     .post(`/holds/${holdId}/confirm`)

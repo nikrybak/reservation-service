@@ -42,7 +42,13 @@ describe('TicketedEvent.create', () => {
     const { event, seats } = TicketedEvent.create(input(), NOW);
 
     expect(event.snapshot().name).toBe('Gala');
-    expect(seats.map((seat) => seat.id.toString())).toEqual(['A-1-1', 'A-1-2', 'A-2-1', 'A-2-2', 'A-2-3']);
+    expect(seats.map((seat) => seat.id.toString())).toEqual([
+      'A-1-1',
+      'A-1-2',
+      'A-2-1',
+      'A-2-2',
+      'A-2-3',
+    ]);
     expect(seats.map((seat) => seat.tierCode)).toEqual(['VIP', 'VIP', 'STD', 'STD', 'STD']);
     expect(seats.every((seat) => seat.status === 'available')).toBe(true);
     expect(event.priceOf('VIP').amountMinor).toBe(10_000);

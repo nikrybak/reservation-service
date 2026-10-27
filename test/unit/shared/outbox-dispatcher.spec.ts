@@ -59,7 +59,10 @@ describe('OutboxDispatcher', () => {
     expect(await dispatcher.dispatchPending()).toMatchObject({ failed: 1, dead: 1 });
 
     const [record] = outbox.records();
-    expect(record).toMatchObject({ attempts: config.outbox.maxAttempts, lastError: 'Error: broker down' });
+    expect(record).toMatchObject({
+      attempts: config.outbox.maxAttempts,
+      lastError: 'Error: broker down',
+    });
     expect(record?.deadAt).not.toBeNull();
     clock.advanceSeconds(3600);
     expect(await dispatcher.dispatchPending()).toMatchObject({ published: 0, failed: 0 });

@@ -2,10 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { CLOCK, type Clock } from '../../../shared/application/clock';
 import { UnitOfWork } from '../../../shared/application/unit-of-work';
-import {
-  type CreateTicketedEventInput,
-  TicketedEvent,
-} from '../domain/ticketed-event';
+import { type CreateTicketedEventInput, TicketedEvent } from '../domain/ticketed-event';
 import {
   SEAT_REPOSITORY,
   type SeatRepository,
@@ -30,7 +27,10 @@ export class CreateEventUseCase {
   ) {}
 
   async execute(command: CreateEventCommand): Promise<CreatedEvent> {
-    const { event, seats } = TicketedEvent.create({ ...command, id: randomUUID() }, this.clock.now());
+    const { event, seats } = TicketedEvent.create(
+      { ...command, id: randomUUID() },
+      this.clock.now(),
+    );
     await this.unitOfWork.execute(async () => {
       await this.events.insert(event);
       await this.seats.insertMany(seats);

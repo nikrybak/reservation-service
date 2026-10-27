@@ -63,7 +63,9 @@ export class Seat {
     if (this.state.status === 'available') {
       return true;
     }
-    return this.state.status === 'held' && this.state.heldUntil !== null && this.state.heldUntil <= now;
+    return (
+      this.state.status === 'held' && this.state.heldUntil !== null && this.state.heldUntil <= now
+    );
   }
 
   hold(holdId: string, until: Date, now: Date): void {

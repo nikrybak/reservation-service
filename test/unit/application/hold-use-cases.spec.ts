@@ -24,7 +24,10 @@ describe('PlaceHoldUseCase', () => {
       principal: shopA,
     });
 
-    const seats = await context.seats.findByIds(event.id, [SeatId.parse('A-1-1'), SeatId.parse('A-1-3')]);
+    const seats = await context.seats.findByIds(event.id, [
+      SeatId.parse('A-1-1'),
+      SeatId.parse('A-1-3'),
+    ]);
     expect(seats.map((seat) => seat.status)).toEqual(['held', 'available']);
     expect(hold.total.amountMinor).toBe(10_000);
     expect(context.outbox.records().map((record) => record.name)).toEqual(['SeatsHeld']);
@@ -33,10 +36,18 @@ describe('PlaceHoldUseCase', () => {
   it('leaves no trace when one requested seat is taken', async () => {
     const context = createInMemoryContext();
     const event = await seedEvent(context);
-    await context.placeHold.execute({ ticketedEventId: event.id, seatIds: ['A-1-2'], principal: shopA });
+    await context.placeHold.execute({
+      ticketedEventId: event.id,
+      seatIds: ['A-1-2'],
+      principal: shopA,
+    });
 
     await expect(
-      context.placeHold.execute({ ticketedEventId: event.id, seatIds: ['A-1-1', 'A-1-2'], principal: shopB }),
+      context.placeHold.execute({
+        ticketedEventId: event.id,
+        seatIds: ['A-1-1', 'A-1-2'],
+        principal: shopB,
+      }),
     ).rejects.toThrow(SeatsUnavailableError);
 
     const [first] = await context.seats.findByIds(event.id, [SeatId.parse('A-1-1')]);
@@ -48,7 +59,11 @@ describe('PlaceHoldUseCase', () => {
     const context = createInMemoryContext();
     const event = await seedEvent(context);
     await expect(
-      context.placeHold.execute({ ticketedEventId: event.id, seatIds: ['Z-9-9'], principal: shopA }),
+      context.placeHold.execute({
+        ticketedEventId: event.id,
+        seatIds: ['Z-9-9'],
+        principal: shopA,
+      }),
     ).rejects.toThrow(UnknownSeatsError);
   });
 
@@ -59,7 +74,11 @@ describe('PlaceHoldUseCase', () => {
 
     const results = await Promise.allSettled(
       Array.from({ length: attempts }, () =>
-        context.placeHold.execute({ ticketedEventId: event.id, seatIds: ['A-1-1'], principal: shopA }),
+        context.placeHold.execute({
+          ticketedEventId: event.id,
+          seatIds: ['A-1-1'],
+          principal: shopA,
+        }),
       ),
     );
 
@@ -85,21 +104,36 @@ describe('ConfirmHoldUseCase', () => {
   it('books the seats and replays the same booking for a repeated key', async () => {
     const { context, event, hold } = await holdSeat();
 
-    const first = await context.confirmHold.execute({ holdId: hold.id, idempotencyKey: key('order-0001'), principal: shopA });
-    const second = await context.confirmHold.execute({ holdId: hold.id, idempotencyKey: key('order-0001'), principal: shopA });
+    const first = await context.confirmHold.execute({
+      holdId: hold.id,
+      idempotencyKey: key('order-0001'),
+      principal: shopA,
+    });
+    const second = await context.confirmHold.execute({
+      holdId: hold.id,
+      idempotencyKey: key('order-0001'),
+      principal: shopA,
+    });
 
     expect(first.replayed).toBe(false);
     expect(second).toMatchObject({ replayed: true });
     expect(second.booking.id).toBe(first.booking.id);
     const [seat] = await context.seats.findByIds(event.id, [SeatId.parse('A-1-1')]);
     expect(seat?.status).toBe('booked');
-    expect(context.outbox.records().map((record) => record.name)).toEqual(['SeatsHeld', 'BookingConfirmed']);
+    expect(context.outbox.records().map((record) => record.name)).toEqual([
+      'SeatsHeld',
+      'BookingConfirmed',
+    ]);
   });
 
   it('resolves concurrent confirmations with one key to a single booking', async () => {
     const { context, hold } = await holdSeat();
     const confirm = () =>
-      context.confirmHold.execute({ holdId: hold.id, idempotencyKey: key('order-0002'), principal: shopA });
+      context.confirmHold.execute({
+        holdId: hold.id,
+        idempotencyKey: key('order-0002'),
+        principal: shopA,
+      });
 
     const results = await Promise.all([confirm(), confirm(), confirm()]);
 
@@ -109,11 +143,23 @@ describe('ConfirmHoldUseCase', () => {
 
   it('rejects a key that was used for another hold', async () => {
     const { context, event, hold } = await holdSeat();
-    await context.confirmHold.execute({ holdId: hold.id, idempotencyKey: key('order-0003'), principal: shopA });
-    const other = await context.placeHold.execute({ ticketedEventId: event.id, seatIds: ['A-1-2'], principal: shopA });
+    await context.confirmHold.execute({
+      holdId: hold.id,
+      idempotencyKey: key('order-0003'),
+      principal: shopA,
+    });
+    const other = await context.placeHold.execute({
+      ticketedEventId: event.id,
+      seatIds: ['A-1-2'],
+      principal: shopA,
+    });
 
     await expect(
-      context.confirmHold.execute({ holdId: other.id, idempotencyKey: key('order-0003'), principal: shopA }),
+      context.confirmHold.execute({
+        holdId: other.id,
+        idempotencyKey: key('order-0003'),
+        principal: shopA,
+      }),
     ).rejects.toThrow(IdempotencyKeyReusedError);
   });
 
@@ -122,14 +168,22 @@ describe('ConfirmHoldUseCase', () => {
     context.clock.advanceSeconds(301);
 
     await expect(
-      context.confirmHold.execute({ holdId: hold.id, idempotencyKey: key('order-0004'), principal: shopA }),
+      context.confirmHold.execute({
+        holdId: hold.id,
+        idempotencyKey: key('order-0004'),
+        principal: shopA,
+      }),
     ).rejects.toThrow(HoldExpiredError);
   });
 
   it('hides holds that belong to someone else', async () => {
     const { context, hold } = await holdSeat();
     await expect(
-      context.confirmHold.execute({ holdId: hold.id, idempotencyKey: key('order-0005'), principal: shopB }),
+      context.confirmHold.execute({
+        holdId: hold.id,
+        idempotencyKey: key('order-0005'),
+        principal: shopB,
+      }),
     ).rejects.toThrow(HoldNotFoundError);
   });
 });

@@ -13,7 +13,11 @@ export class SeatInventory {
   constructor(@Inject(SEAT_REPOSITORY) private readonly seats: SeatRepository) {}
 
   /** Loads the requested seats and fails unless every one of them can be held right now. */
-  async loadAvailable(ticketedEventId: string, rawSeatIds: readonly string[], now: Date): Promise<Seat[]> {
+  async loadAvailable(
+    ticketedEventId: string,
+    rawSeatIds: readonly string[],
+    now: Date,
+  ): Promise<Seat[]> {
     const seatIds = rawSeatIds.map((raw) => SeatId.parse(raw));
     const seats = await this.seats.findByIds(ticketedEventId, seatIds);
 
@@ -23,7 +27,9 @@ export class SeatInventory {
       throw new UnknownSeatsError(missing);
     }
 
-    const taken = seats.filter((seat) => !seat.isAvailableAt(now)).map((seat) => seat.id.toString());
+    const taken = seats
+      .filter((seat) => !seat.isAvailableAt(now))
+      .map((seat) => seat.id.toString());
     if (taken.length > 0) {
       throw new SeatsUnavailableError(taken);
     }
@@ -35,18 +41,31 @@ export class SeatInventory {
     await this.seats.saveAll(seats);
   }
 
-  async book(ticketedEventId: string, seatIds: readonly string[], holdId: string, bookingId: string): Promise<void> {
+  async book(
+    ticketedEventId: string,
+    seatIds: readonly string[],
+    holdId: string,
+    bookingId: string,
+  ): Promise<void> {
     const seats = await this.load(ticketedEventId, seatIds);
     seats.forEach((seat) => seat.book(holdId, bookingId));
     await this.seats.saveAll(seats);
   }
 
-  async releaseHold(ticketedEventId: string, seatIds: readonly string[], holdId: string): Promise<void> {
+  async releaseHold(
+    ticketedEventId: string,
+    seatIds: readonly string[],
+    holdId: string,
+  ): Promise<void> {
     const seats = await this.load(ticketedEventId, seatIds);
     await this.seats.saveAll(seats.filter((seat) => seat.releaseHold(holdId)));
   }
 
-  async releaseBooking(ticketedEventId: string, seatIds: readonly string[], bookingId: string): Promise<void> {
+  async releaseBooking(
+    ticketedEventId: string,
+    seatIds: readonly string[],
+    bookingId: string,
+  ): Promise<void> {
     const seats = await this.load(ticketedEventId, seatIds);
     await this.seats.saveAll(seats.filter((seat) => seat.releaseBooking(bookingId)));
   }

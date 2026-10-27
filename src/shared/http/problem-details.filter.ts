@@ -93,7 +93,9 @@ export class ProblemDetailsFilter implements ExceptionFilter {
 
 function titleFor(status: number): string {
   const name = HttpStatus[status];
-  return typeof name === 'string' ? name.toLowerCase().split('_').map(capitalize).join(' ') : 'Error';
+  return typeof name === 'string'
+    ? name.toLowerCase().split('_').map(capitalize).join(' ')
+    : 'Error';
 }
 
 function codeFor(status: number): string {

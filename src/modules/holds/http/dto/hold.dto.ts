@@ -21,7 +21,10 @@ export class PlaceHoldRequest {
   @ArrayMinSize(1)
   @ArrayMaxSize(MAX_SEATS_PER_REQUEST)
   @ArrayUnique()
-  @Matches(SEAT_ID_PATTERN, { each: true, message: 'each seat id must look like SECTION-ROW-NUMBER' })
+  @Matches(SEAT_ID_PATTERN, {
+    each: true,
+    message: 'each seat id must look like SECTION-ROW-NUMBER',
+  })
   seatIds!: string[];
 
   @IsOptional()

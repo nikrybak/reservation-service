@@ -1,4 +1,7 @@
-import type { InMemoryStore, InMemoryTable } from '../../../shared/persistence/in-memory/in-memory-store';
+import type {
+  InMemoryStore,
+  InMemoryTable,
+} from '../../../shared/persistence/in-memory/in-memory-store';
 import type { HoldRepository } from '../application/ports';
 import type { Hold } from '../domain/hold';
 import { fromHoldRecord, type HoldRecord, toHoldRecord } from './hold-record.mapper';
@@ -36,4 +39,3 @@ export class InMemoryHoldRepository implements HoldRepository {
     );
   }
 }
-

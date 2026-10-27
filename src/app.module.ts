@@ -1,4 +1,9 @@
-import { type DynamicModule, type MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
+import {
+  type DynamicModule,
+  type MiddlewareConsumer,
+  Module,
+  type NestModule,
+} from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';

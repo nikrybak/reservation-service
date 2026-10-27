@@ -12,12 +12,13 @@ export class RequestValidationError extends Error {
   }
 }
 
-export function flattenValidationErrors(errors: readonly ValidationError[], parent = ''): FieldViolation[] {
+export function flattenValidationErrors(
+  errors: readonly ValidationError[],
+  parent = '',
+): FieldViolation[] {
   return errors.flatMap((error) => {
     const field = parent ? `${parent}.${error.property}` : error.property;
-    const own = error.constraints
-      ? [{ field, messages: Object.values(error.constraints) }]
-      : [];
+    const own = error.constraints ? [{ field, messages: Object.values(error.constraints) }] : [];
     return [...own, ...flattenValidationErrors(error.children ?? [], field)];
   });
 }

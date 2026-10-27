@@ -31,7 +31,6 @@ export interface HoldRecord {
   version: number;
 }
 
-
 export function toHoldRecord(hold: Hold): Omit<HoldRecord, 'version'> {
   const state = hold.snapshot();
   return {
@@ -60,4 +59,3 @@ export function fromHoldRecord(row: HoldRecord): Hold {
     version: row.version,
   });
 }
-

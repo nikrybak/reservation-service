@@ -58,7 +58,10 @@ export class TicketedEvent {
   }
 
   /** Creates the event together with its seat inventory, which is stored per seat. */
-  static create(input: CreateTicketedEventInput, now: Date): { event: TicketedEvent; seats: Seat[] } {
+  static create(
+    input: CreateTicketedEventInput,
+    now: Date,
+  ): { event: TicketedEvent; seats: Seat[] } {
     if (input.startsAt <= now) {
       throw new InvalidSeatMapError('Event must start in the future', {
         startsAt: input.startsAt.toISOString(),
@@ -132,7 +135,9 @@ export class TicketedEvent {
 
   private static buildTiers(inputs: readonly PricingTierInput[], currency: string): PricingTier[] {
     if (inputs.length === 0 || inputs.length > MAX_PRICING_TIERS) {
-      throw new InvalidSeatMapError(`An event needs between 1 and ${MAX_PRICING_TIERS} pricing tiers`);
+      throw new InvalidSeatMapError(
+        `An event needs between 1 and ${MAX_PRICING_TIERS} pricing tiers`,
+      );
     }
     const tiers = inputs.map((tier) =>
       PricingTier.create(tier.code, tier.name, Money.of(tier.priceMinor, currency)),
@@ -149,7 +154,9 @@ export class TicketedEvent {
     tierCodes: ReadonlySet<string>,
   ): void {
     if (sections.length === 0 || sections.length > MAX_SECTIONS_PER_EVENT) {
-      throw new InvalidSeatMapError(`An event needs between 1 and ${MAX_SECTIONS_PER_EVENT} sections`);
+      throw new InvalidSeatMapError(
+        `An event needs between 1 and ${MAX_SECTIONS_PER_EVENT} sections`,
+      );
     }
     assertUnique(
       sections.map((section) => section.name),
@@ -177,7 +184,11 @@ export class TicketedEvent {
             tierCode: row.tierCode,
           });
         }
-        if (!Number.isInteger(row.seatCount) || row.seatCount < 1 || row.seatCount > MAX_SEATS_PER_ROW) {
+        if (
+          !Number.isInteger(row.seatCount) ||
+          row.seatCount < 1 ||
+          row.seatCount > MAX_SEATS_PER_ROW
+        ) {
           throw new InvalidSeatMapError(`A row holds between 1 and ${MAX_SEATS_PER_ROW} seats`, {
             section: section.name,
             row: row.name,
