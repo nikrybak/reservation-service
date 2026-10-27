@@ -23,14 +23,18 @@ type WriteSet = Map<string, StagedWrite>;
  */
 export class InMemoryStore implements TransactionManager {
   private readonly context = new AsyncLocalStorage<WriteSet>();
-  private readonly tables = new Set<InMemoryTable<VersionedRow>>();
+  private readonly tables = new Map<string, InMemoryTable<VersionedRow>>();
 
   table<TRow extends VersionedRow>(
     name: string,
     uniqueKeys: ReadonlyArray<(row: TRow) => string> = [],
   ): InMemoryTable<TRow> {
+    const existing = this.tables.get(name);
+    if (existing) {
+      return existing as unknown as InMemoryTable<TRow>;
+    }
     const table = new InMemoryTable<TRow>(name, uniqueKeys, this);
-    this.tables.add(table as unknown as InMemoryTable<VersionedRow>);
+    this.tables.set(name, table as unknown as InMemoryTable<VersionedRow>);
     return table;
   }
 
@@ -84,7 +88,7 @@ export class InMemoryStore implements TransactionManager {
   }
 
   reset(): void {
-    for (const table of this.tables) {
+    for (const table of this.tables.values()) {
       table.clear();
     }
   }
