@@ -5,7 +5,7 @@ module.exports = {
   roots: ['<rootDir>/test/e2e'],
   testRegex: '.*\.e2e-spec\.ts$',
   transform: {
-    '^.+\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json', isolatedModules: true }],
+    '^.+\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
   testTimeout: 30000,
